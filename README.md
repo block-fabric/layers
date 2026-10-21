@@ -111,6 +111,32 @@ mainchainrpcwallet=<wallet of the Chains node>
 On the test network, the `-mainchainrpcport`, `-mainchainrpccookiefile` and `-mainchainrpcwallet`
 options are read only from the `[test]` section.
 
+## Trying it: the local playground
+
+One command starts a whole Layers on your computer, on regtest: `chainsd -regtest` as the mainchain, three Layers
+validators in slot 7 that follow it over JSON-RPC, a mainchain block every 3 seconds, and `layers-app` as
+validator 0.
+
+```sh
+contrib/playground/layers-playground.sh start      # about a minute: slot 7 activated, 100 CHN deposited,
+                                                    # the token DEMO with a DEMO/CHN pool, a swap
+contrib/playground/layers-playground.sh status
+contrib/playground/layers-playground.sh withdraw-demo   # request -> bundle -> votes -> paid, a few minutes
+contrib/playground/layers-playground.sh cli 0 getbalance   # any RPC: node main, 0, 1 or 2
+contrib/playground/layers-playground.sh mine 10            # ten mainchain blocks now
+contrib/playground/layers-playground.sh stop        # stops exactly what it started
+contrib/playground/layers-playground.sh reset       # stop, and delete the playground
+```
+
+Options of `start`: `--block-seconds 3` (a mainchain block every so often), `--slot-seconds 2` (the slots of
+the blocks of stake; 15 on the Chains networks), `--no-app` (validator 0 without a window), `--no-demo` (no
+activation, deposit or token), `--base-port 49500` (it and the 22 ports after it must be free), `--layers-bin`
+(default `build/bin`), `--chains-bin` (default `$MAINCHAIN_BIN_DIR`, else `../chains/build/bin`). Data in
+`~/.layers-playground` (`--dir`, or `$LAYERS_PLAYGROUND`), with each node's log; on WSLg the app runs with
+`LIBGL_ALWAYS_SOFTWARE=1`. The playground uses Chains' regtest windows: a slot activates after 20 blocks of
+acks, a bundle is paid with 30 votes within 60 blocks. Its validator keys are fixed test keys: never use them
+elsewhere.
+
 ## Coins in and out
 
 - **Deposit.** In Layers, get a deposit address (`getdepositaddress`, or the **Mainchain** page):
