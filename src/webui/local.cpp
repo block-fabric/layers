@@ -14,6 +14,7 @@
 // journal of what the chain does not keep (the assets being created, the prices of the pools as the app saw them),
 // in a file of the data directory.
 
+#include <policy/feerate.h>
 #include <webui/local.h>
 
 #include <addresstype.h>
@@ -621,7 +622,7 @@ std::string ResolvedPool(const confirm::Call& call, const UniValue& value)
     if (!pool.isObject() || !pool.find_value("pool").isStr() || pool.find_value("pool").get_str() != value.get_str()) throw HostError(BRIDGE_INVALID_REQUEST, "No such pool");
     const auto side{[&](const char* key) {
         const std::string id{pool.find_value(key).get_str()};
-        return ResolvedAsset(call, UniValue{uint256::FromHex(id) && uint256::FromHex(id)->IsNull() ? std::string{"CHN"} : "0x" + id});
+        return ResolvedAsset(call, UniValue{uint256::FromHex(id) && uint256::FromHex(id)->IsNull() ? std::string{CURRENCY_UNIT} : "0x" + id});
     }};
     std::string kind{pool.find_value("curve").isStr() ? pool.find_value("curve").get_str() : "constant_product"};
     if (pool.find_value("amp").isNum()) kind += strprintf(", A %s", pool.find_value("amp").getValStr());
