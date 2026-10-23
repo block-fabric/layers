@@ -671,6 +671,8 @@ public:
             consensus.pos.fee_split_height = opts.dep_opts.fee_split_height.value_or(std::numeric_limits<int>::max());
             // The second fee curve the same (-testactivationheight=feecurve2@<height>): the first until then.
             consensus.pos.fee_curve2_height = opts.dep_opts.fee_curve2_height.value_or(std::numeric_limits<int>::max());
+            // The liveness fix from the first block, unless a test asks (-testactivationheight=jailfix@<height>).
+            consensus.pos.jail_fix_height = opts.dep_opts.jail_fix_height.value_or(0);
             consensus.sidechain.bundle_retry_delay = 5;
             consensus.sidechain.bitassets_reveal_depth = 2;
             // Layers' DEX never, unless a test asks (-testactivationheight=dex@<height>): the tests of the
