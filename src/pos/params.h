@@ -118,6 +118,8 @@ struct PosParams {
      * least this long before the epoch starts.
      */
     int64_t seed_lookahead_seconds{1200};
+    //! Not consensus: the least feerate a validator's anchorer bids, per 1000 vbytes (2 sat/vB on the eCash networks; 0 here).
+    int64_t min_bid_rate_per_kvb{0};
     //! Signing two blocks for one slot costs this share of the stake (bonded and unbonding), in basis points.
     int64_t slash_bps{1000};
     //! The block that carries the proof is paid 1/reporter_share_divisor of the penalty; the rest goes to the pot's reserve.
