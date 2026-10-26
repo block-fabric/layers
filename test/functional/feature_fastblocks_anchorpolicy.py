@@ -5,7 +5,7 @@
 """The anchor bid policy of a validator's anchorer (doc/fastblocks-anchor-bids.md): its RPCs, and a congested mainchain.
 
 Three genesis validators with 15-second slots on mock time, as feature_fastblocks_idle.py, a run of 60 slots without
-an anchor before blocks of stake halt (-testposparam=max_unanchored_slots@60), and a mainchain whose miners take no
+an anchor before blocks of stake halt (regtest: 100 slots), and a mainchain whose miners take no
 transaction below 50 sat/vB (-blockmintxfee): a congested mempool, whatever the floor (500 sat, ~2.6 sat/vB).
 
   - not a validator: getanchorbidpolicy explains, setanchorbidpolicy refuses;
@@ -22,7 +22,7 @@ import os
 from feature_fastblocks_idle import FastBlocksIdleTest
 from test_framework.util import assert_equal, assert_greater_than, assert_raises_rpc_error
 
-MAX_UNANCHORED = 60
+MAX_UNANCHORED = 100  # regtest's (Layers has no -testposparam)
 COIN = 100_000_000
 
 
@@ -35,7 +35,7 @@ class FastBlocksAnchorPolicyTest(FastBlocksIdleTest):
         super().set_test_params()
         # 50 sat/vB at least in a block; the mainchain wallet pays its own transactions 100 sat/vB.
         self.main_extra_args = ["-blockmintxfee=0.0005", "-fallbackfee=0.001"]
-        self.side_args = self.side_args + [f"-testposparam=max_unanchored_slots@{MAX_UNANCHORED}"]
+        self.side_args = self.side_args
         self.extra_args = [self.side_args] * self.num_nodes
 
     def run_test(self):
