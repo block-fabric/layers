@@ -15,8 +15,8 @@ The validators of feature_fastblocks_idle.py, on mock time, with the default pol
 from feature_fastblocks_anchorpolicy import FastBlocksAnchorPolicyTest
 from test_framework.util import assert_equal, assert_greater_than
 
-MAX_UNANCHORED = 40
-EPOCH = 8
+MAX_UNANCHORED = 100  # regtest's (Layers has no -testposparam)
+EPOCH = 20
 
 
 class FastBlocksIdleSkipTest(FastBlocksAnchorPolicyTest):
@@ -24,7 +24,6 @@ class FastBlocksIdleSkipTest(FastBlocksAnchorPolicyTest):
         super().set_test_params()
         self.main_extra_args = []
         self.side_args = [a for a in self.side_args if not a.startswith("-testposparam=max_unanchored_slots")]
-        self.side_args += [f"-testposparam=max_unanchored_slots@{MAX_UNANCHORED}", f"-testposparam=slots_per_epoch@{EPOCH}"]
         self.extra_args = [self.side_args] * self.num_nodes
 
     def run_test(self):
