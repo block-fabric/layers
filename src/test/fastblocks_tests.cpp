@@ -588,13 +588,13 @@ struct SeedSetup : public FastBlocksSetup {
 
 /** The seed of an epoch taken at its start (no lookahead), and the liveness fix from the chain's block `height` on. */
 struct JailFixSetup : public FastBlocksSetup {
-    explicit JailFixSetup(int height = 0) : FastBlocksSetup{/*with_validators=*/true, /*lookahead=*/0, std::nullopt, std::nullopt, height} {}
+    explicit JailFixSetup(int height = 0) : FastBlocksSetup{/*with_validators=*/true, /*lookahead=*/5, std::nullopt, std::nullopt, height} {}
     /** The slots the leaders were charged with and the blocks they made, in every epoch up to `last`. */
     std::pair<uint32_t, uint32_t> Counted(int64_t last)
     {
         uint32_t assigned{0}, produced{0};
         LOCK(::cs_main);
-        for (int64_t e{0}; e <= last; ++e) {
+        for (int64_t e{pos::EpochOf(base_slot, Pos())}; e <= last; ++e) {
             for (const CKey& k : keys) {
                 if (const auto liveness{pos::GetLiveness(Chain().SideState().View(), e, XOnly(k))}) {
                     assigned += liveness->assigned;
@@ -3346,7 +3346,12 @@ BOOST_FIXTURE_TEST_CASE(anchor_slot_from_the_commitment, FastBlocksSetup)
     BOOST_CHECK_EQUAL(set_anchors, 2U);
 }
 
-BOOST_FIXTURE_TEST_CASE(jailed_validator_back_after_pos_stops, FastBlocksSetup)
+/** The rules before the liveness fix (this test jails the set's only validators, which the fix takes back). */
+struct NoJailFixSetup : public FastBlocksSetup {
+    NoJailFixSetup() : FastBlocksSetup{/*with_validators=*/true, std::nullopt, std::nullopt, std::nullopt, std::numeric_limits<int>::max() - 1} {}
+};
+
+BOOST_FIXTURE_TEST_CASE(jailed_validator_back_after_pos_stops, NoJailFixSetup)
 {
     // Review of audit 6, item 9 (testnet, 2026-10-13): a validator is jailed, and blocks of stake stop
     // without it (every validator is needed); BMM blocks follow, at the clock's time, one an epoch.
