@@ -2305,7 +2305,14 @@ void FastBlocksHooks::PollBidSignals(const sidechain::Follower& follower, const 
     std::string balance_error;
     try {
         const UniValue balances{client.Call("getbalances", UniValue{UniValue::VARR}, /*wallet=*/true)};
-        balance = amount(balances.find_value("mine").find_value("trusted"));
+        // What it can spend: its confirmed coins and its unconfirmed ones (the enforcer's interface gives no "trusted",
+        // only confirmed and pending: in a mainchain gap every coin of a wallet that bids is the unconfirmed change of
+        // its last bid, which it spends all the same).
+        const UniValue& mine{balances.find_value("mine")};
+        balance = amount(mine.find_value("trusted"));
+        if (balance) {
+            if (const auto pending{amount(mine.find_value("untrusted_pending"))}; pending && *pending > 0) *balance += *pending;
+        }
         if (!balance) balance_error = "the mainchain wallet said no balance";
     } catch (const std::exception& e) {
         balance_error = e.what();
